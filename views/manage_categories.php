@@ -3,10 +3,31 @@
 
 <head>
     <title>Category Management</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
-    <a href="#" id="addCategoryBtn">Add New Category</a>
+    <h2>Manage Categories</h2>
+
+    <h3>Add Category</h3>
+    <form action="../controllers/CategoryController.php?action=add" method="POST">
+        <label for="categoryName">Category Name:</label>
+        <input type="text" id="categoryName" name="name" required>
+
+        <label for="parentCategory">Parent Category (optional):</label>
+        <select id="parentCategory" name="parent_id">
+            <option value="">None</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?= htmlspecialchars($category['id']) ?>">
+                    <?= htmlspecialchars($category['name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <button type="submit">Add Category</button>
+    </form>
+
+
     <ul>
         <?php foreach ($categories as $category): ?>
             <li>
@@ -16,16 +37,6 @@
             </li>
         <?php endforeach; ?>
     </ul>
-
-    <script>
-        document.getElementById('addCategoryBtn').addEventListener('click', function (event) {
-            event.preventDefault();
-            const categoryName = prompt('Enter category name:');
-            if (categoryName) {
-                window.location.href = `../controllers/CategoryController.php?action=add&name=${encodeURIComponent(categoryName)}`;
-            }
-        });
-    </script>
 </body>
 
 </html>

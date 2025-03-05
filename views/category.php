@@ -11,6 +11,9 @@ $categoryId = $_GET['category'] ?? null;
 $sort = $_GET['sort'] ?? 'name';
 
 $products = $categoryId ? $productModel->getProductsByCategory($categoryId, $sort) : [];
+
+// Fetch subcategories for the selected category
+$subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [];
 ?>
 
 <!DOCTYPE html>
@@ -27,9 +30,11 @@ $products = $categoryId ? $productModel->getProductsByCategory($categoryId, $sor
     <nav>
         <ul>
             <?php foreach ($categories as $category): ?>
-                <li><a href="index.php?category=<?= $category['id'] ?>"> <?= htmlspecialchars($category['name']) ?>
-                    </a>
-                </li>
+                <?php if (empty($category['parent_id'])): ?>
+                    <li><a href="../index.php?category=<?= htmlspecialchars($category['id']) ?>">
+                            <?= htmlspecialchars($category['name']) ?>
+                        </a></li>
+                <?php endif; ?>
             <?php endforeach; ?>
             <li><a href="views/login.php">Login</a></li>
         </ul>
@@ -46,6 +51,17 @@ $products = $categoryId ? $productModel->getProductsByCategory($categoryId, $sor
                 <option value="price" <?= $sort == 'price' ? 'selected' : '' ?>>Price</option>
             </select>
         </form>
+
+        <div class="subcategories">
+            <h3>Subcategories</h3>
+            <ul>
+                <?php foreach ($subcategories as $subcategory): ?>
+                    <li><a
+                            href="category.php?category=<?= $subcategory['id'] ?>"><?= htmlspecialchars($subcategory['name']) ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
 
         <div class="product-list">
             <?php if (count($products) > 0): ?>

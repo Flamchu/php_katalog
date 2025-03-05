@@ -27,10 +27,13 @@ if ($categoryId) {
     <nav>
         <ul>
             <?php foreach ($categories as $category): ?>
-                <li><a href="index.php?category=<?= $category['id'] ?>"> <?= htmlspecialchars($category['name']) ?>
-                    </a>
-                </li>
+                <?php if (empty($category['parent_id'])): ?>
+                    <li><a href="index.php?category=<?= htmlspecialchars($category['id']) ?>">
+                            <?= htmlspecialchars($category['name']) ?>
+                        </a></li>
+                <?php endif; ?>
             <?php endforeach; ?>
+
             <li><a href="views/login.php">Login</a></li>
             <?php if (isset($_SESSION['admin'])): ?>
                 <li><a href="views/admin.php">Admin Panel</a></li>

@@ -21,8 +21,11 @@ $categoryId = $_GET['category'] ?? null;
     <nav>
         <ul>
             <?php foreach ($categories as $category): ?>
-                <li><a href="../index.php?category=<?= $category['id'] ?>"> <?= htmlspecialchars($category['name']) ?></a>
-                </li>
+                <?php if (empty($category['parent_id'])): ?>
+                    <li><a href="../index.php?category=<?= htmlspecialchars($category['id']) ?>">
+                            <?= htmlspecialchars($category['name']) ?>
+                        </a></li>
+                <?php endif; ?>
             <?php endforeach; ?>
             <li><a href="login.php">Login</a></li>
         </ul>

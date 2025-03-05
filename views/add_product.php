@@ -3,6 +3,7 @@
 
 <head>
     <title>Add Product</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
