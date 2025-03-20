@@ -12,7 +12,6 @@ $sort = $_GET['sort'] ?? 'name';
 
 $products = $categoryId ? $productModel->getProductsByCategory($categoryId, $sort) : [];
 
-// Fetch subcategories for the selected category
 $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [];
 ?>
 
@@ -31,7 +30,7 @@ $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [
         <ul>
             <?php foreach ($categories as $category): ?>
                 <?php if (empty($category['parent_id'])): ?>
-                    <li><a href="../index.php?category=<?= htmlspecialchars($category['id']) ?>">
+                    <li><a href="category.php?category=<?= htmlspecialchars($category['id']) ?>">
                             <?= htmlspecialchars($category['name']) ?>
                         </a></li>
                 <?php endif; ?>
