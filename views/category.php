@@ -28,6 +28,7 @@ $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [
 <body>
     <nav>
         <ul>
+            <li><a href="../">Home</a></li>
             <?php foreach ($categories as $category): ?>
                 <?php if (empty($category['parent_id'])): ?>
                     <li><a href="category.php?category=<?= htmlspecialchars($category['id']) ?>">
@@ -39,34 +40,36 @@ $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [
         </ul>
     </nav>
 
+    <div class="subcategories">
+        <h2>Subcategories</h2>
+        <ul>
+            <?php foreach ($subcategories as $subcategory): ?>
+                <li><a
+                        href="category.php?category=<?= $subcategory['id'] ?>"><?= htmlspecialchars($subcategory['name']) ?></a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
     <h2>Products</h2>
 
     <?php if ($categoryId): ?>
         <form method="GET" action="category.php">
             <input type="hidden" name="category" value="<?= $categoryId ?>">
-            <label for="sort">Sort by:</label>
-            <select name="sort" onchange="this.form.submit()">
+            <label class="sort-label" for="sort">Sort by:</label>
+            <select class="sort-list" name="sort" onchange="this.form.submit()">
                 <option value="name" <?= $sort == 'name' ? 'selected' : '' ?>>Name</option>
                 <option value="price" <?= $sort == 'price' ? 'selected' : '' ?>>Price</option>
             </select>
         </form>
 
-        <div class="subcategories">
-            <h3>Subcategories</h3>
-            <ul>
-                <?php foreach ($subcategories as $subcategory): ?>
-                    <li><a
-                            href="category.php?category=<?= $subcategory['id'] ?>"><?= htmlspecialchars($subcategory['name']) ?></a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+
 
         <div class="product-list">
             <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-                        <h3><a href="../controllers/ProductController.php?id=<?= $product['id'] ?>">
+                        <h3><a href="controllers/ProductController.php?action=view&id=<?= $product['id'] ?>">
                                 <?= htmlspecialchars($product['name']) ?> </a></h3>
                         <p><?= htmlspecialchars($product['short_description']) ?></p>
                         <p>Price: <?= number_format($product['price'], 2) ?> Kč</p>

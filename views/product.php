@@ -20,14 +20,15 @@ $categoryId = $_GET['category'] ?? null;
 <body>
     <nav>
         <ul>
+            <li><a href="../">Home</a></li>
             <?php foreach ($categories as $category): ?>
                 <?php if (empty($category['parent_id'])): ?>
-                    <li><a href="../index.php?category=<?= htmlspecialchars($category['id']) ?>">
+                    <li><a href="../views/category.php?category=<?= htmlspecialchars($category['id']) ?>">
                             <?= htmlspecialchars($category['name']) ?>
                         </a></li>
                 <?php endif; ?>
             <?php endforeach; ?>
-            <li><a href="login.php">Login</a></li>
+            <li><a href="views/login.php">Login</a></li>
         </ul>
     </nav>
 
