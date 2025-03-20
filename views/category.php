@@ -69,7 +69,7 @@ $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [
             <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
                     <div class="product-card">
-                        <h3><a href="controllers/ProductController.php?action=view&id=<?= $product['id'] ?>">
+                        <h3><a href="../controllers/ProductController.php?action=view&id=<?= $product['id'] ?>">
                                 <?= htmlspecialchars($product['name']) ?> </a></h3>
                         <p><?= htmlspecialchars($product['short_description']) ?></p>
                         <p>Price: <?= number_format($product['price'], 2) ?> Kč</p>
