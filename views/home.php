@@ -40,7 +40,7 @@ if ($categoryId) {
         </ul>
     </nav>
     <h2>Products</h2>
-    <form method="GET" action="index.php">
+    <form method="GET" action="">
         <input type="hidden" name="category" value="<?= $categoryId ?>">
         <label class="sort-label" for="sort">Sort by:</label>
         <select class="sort-list" name="sort" onchange="this.form.submit()">
