@@ -83,6 +83,15 @@ class Product
         }
     }
 
+    public function updateProductCategory($productId, $categoryId)
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM product_categories WHERE product_id = ?");
+        $stmt->execute([$productId]);
+
+        $stmt = $this->pdo->prepare("INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)");
+        $stmt->execute([$productId, $categoryId]);
+    }
+
     private function sanitizeSort($sort)
     {
         $allowedSorts = ['name', 'price', 'id'];

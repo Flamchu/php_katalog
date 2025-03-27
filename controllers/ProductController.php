@@ -1,7 +1,6 @@
 <?php
-require_once '../db.php';
-require_once '../models/Category.php';
-require_once '../models/Product.php';
+require_once __DIR__ . '/../models/Category.php';
+require_once __DIR__ . '/../models/Product.php';
 
 class ProductController
 {
@@ -16,70 +15,101 @@ class ProductController
 
     public function showAddForm()
     {
+        if (!isset($_SESSION['admin'])) {
+            header('Location: /katalog/login');
+            exit;
+        }
+
         $categories = $this->categoryModel->getAllCategories();
-        require '../views/add_product.php';
+        require __DIR__ . '/../views/add_product.php';
+    }
+
+    public function showAdminDashboard()
+    {
+        if (!isset($_SESSION['admin'])) {
+            header('Location: /katalog/login');
+            exit;
+        }
+
+        $products = $this->productModel->getAllProducts();
+        require __DIR__ . '/../views/admin.php';
     }
 
     public function addProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'];
-            $short_description = $_POST['short_description'];
-            $detailed_description = $_POST['detailed_description'];
-            $specifications = $_POST['specifications'];
-            $features = $_POST['features'];
-            $price = $_POST['price'];
-            $category_id = $_POST['category_id'];
+            $name = $_POST['name'] ?? '';
+            $short_description = $_POST['short_description'] ?? '';
+            $detailed_description = $_POST['detailed_description'] ?? '';
+            $specifications = $_POST['specifications'] ?? '';
+            $features = $_POST['features'] ?? '';
+            $price = $_POST['price'] ?? 0;
+            $category_id = $_POST['category_id'] ?? null;
 
-            $productId = $this->productModel->addProduct($name, $short_description, $detailed_description, $specifications, $features, $price);
+            $productId = $this->productModel->addProduct(
+                $name,
+                $short_description,
+                $detailed_description,
+                $specifications,
+                $features,
+                $price
+            );
 
-            if ($productId) {
+            if ($productId && $category_id) {
                 $this->productModel->linkProductToCategory($productId, $category_id);
-                header('Location: ../views/admin.php');
+                header('Location: /katalog/admin');
+                exit;
             } else {
-                echo "Failed to add product.";
+                // Handle error - maybe show the form again with error message
+                $categories = $this->categoryModel->getAllCategories();
+                $error = "Failed to add product";
+                require __DIR__ . '/../views/add_product.php';
             }
         }
     }
 
-    public function editProduct($id, $data)
+    public function editProduct($id, $data = [])
     {
-        $this->productModel->editProduct($id, $data);
-        header('Location: ../views/admin.php');
+        if (empty($data)) {
+            $product = $this->productModel->getProductById($id);
+            $categories = $this->categoryModel->getAllCategories();
+
+            if (!$product) {
+                header("HTTP/1.0 404 Not Found");
+                echo "Product not found";
+                return;
+            }
+
+            require __DIR__ . '/../views/edit_product.php';
+        } else {
+            $this->productModel->editProduct($id, $data);
+
+            if (isset($data['category_id'])) {
+                $this->productModel->updateProductCategory($id, $data['category_id']);
+            }
+
+            header('Location: /katalog/admin');
+            exit;
+        }
     }
 
     public function deleteProduct($id)
     {
         $this->productModel->deleteProduct($id);
-        header('Location: ../views/admin.php');
-
+        header('Location: /katalog/admin');
+        exit;
     }
 
-    public function getProductById($id)
+    public function showProduct($id)
     {
-        global $pdo;
         $product = $this->productModel->getProductById($id);
+        $categories = $this->categoryModel->getAllCategories();
+
         if ($product) {
-            include '../views/product.php';
+            require __DIR__ . '/../views/product.php';
         } else {
+            header("HTTP/1.0 404 Not Found");
             echo 'Produkt nebyl nalezen.';
         }
     }
 }
-
-$productController = new ProductController($pdo);
-
-if (isset($_GET['action'])) {
-    if ($_GET['action'] === 'showAddForm') {
-        $productController->showAddForm();
-    } elseif ($_GET['action'] === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $productController->addProduct();
-    } elseif ($_GET['action'] === 'delete' && isset($_GET['id'])) {
-        $productController->deleteProduct($_GET['id']);
-    } elseif ($_GET['action'] === 'edit' && isset($_GET['id'])) {
-        $productController->editProduct($_GET['id'], $_POST);
-    } elseif ($_GET['action'] === 'view' && isset($_GET['id'])) {
-        $productController->getProductById($_GET['id']);
-    }
-}
-?>

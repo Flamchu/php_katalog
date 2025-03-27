@@ -1,20 +1,23 @@
 <?php
-require_once '../models/Category.php';
-require_once '../db.php';
+require_once __DIR__ . '/../models/Category.php';
+require_once __DIR__ . '/../models/Product.php';
+require_once __DIR__ . '/../db.php';
 
 class CategoryController
 {
     private $categoryModel;
+    private $productModel;
 
     public function __construct($pdo)
     {
         $this->categoryModel = new Category($pdo);
+        $this->productModel = new Product($pdo);
     }
 
     public function manageCategories()
     {
         $categories = $this->categoryModel->getAllCategories();
-        require '../views/manage_categories.php';
+        require __DIR__ . '/../views/manage_categories.php';
     }
 
     public function addCategory($name, $parentId = null)
@@ -22,14 +25,25 @@ class CategoryController
         if ($name) {
             $this->categoryModel->addCategory($name, $parentId);
         }
-        header('Location: ../controllers/CategoryController.php?action=manage');
-        exit;
+        header('Location: /katalog/admin/manage/category');
+    }
+
+    public function showCategory($categoryId)
+    {
+        $categoryModel = $this->categoryModel;
+        $productModel = $this->productModel;
+
+        $categories = $categoryModel->getAllCategories();
+        $sort = $_GET['sort'] ?? 'name';
+
+        $products = $categoryId ? $productModel->getProductsByCategory($categoryId, $sort) : [];
+        $subcategories = $categoryId ? $categoryModel->getSubcategories($categoryId) : [];
+
+        require __DIR__ . '/../views/category.php';
     }
 
     public function deleteCategory($id)
     {
-
-        $this->categoryModel->deleteCategory($id);
         $subcategories = $this->categoryModel->getSubcategories($id);
 
         if (count($subcategories) > 0) {
@@ -37,25 +51,9 @@ class CategoryController
                 $this->categoryModel->deleteCategory($subcategory['id']);
             }
         }
-        header('Location: ../controllers/CategoryController.php?action=manage');
+
+        $this->categoryModel->deleteCategory($id);
+        header('Location: /katalog/admin/manage/category');
         exit;
     }
 }
-
-if (isset($_GET['action'])) {
-    $categoryController = new CategoryController($pdo);
-
-    if ($_GET['action'] === 'manage') {
-        $categoryController->manageCategories();
-    } elseif ($_GET['action'] === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = $_POST['name'] ?? null;
-        $parentId = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
-        $categoryController->addCategory($name, $parentId);
-    } elseif ($_GET['action'] === 'delete' && isset($_GET['id'])) {
-        $id = $_GET['id'];
-        $categoryController->deleteCategory($id);
-    } else {
-        $categoryController->manageCategories();
-    }
-}
-?>

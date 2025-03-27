@@ -13,6 +13,13 @@ class Category
         return $this->pdo->query("SELECT * FROM categories")->fetchAll();
     }
 
+    public function getCategoryById($id)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function addCategory($name, $parentId)
     {
         $stmt = $this->pdo->prepare("INSERT INTO categories (name, parent_id) VALUES (:name, :parent_id)");

@@ -1,35 +1,33 @@
-<?php
-session_start();
-require_once '../db.php';
-require_once '../models/User.php';
-
-$userModel = new User($pdo);
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($userModel->login($_POST['username'], $_POST['password'])) {
-        $_SESSION['admin'] = true;
-        header('Location: admin.php');
-        exit;
-    } else {
-        $error = "Invalid credentials";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/katalog/style.css">
 </head>
 
 <body>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
-    <?= isset($error) ? "<p>$error</p>" : "" ?>
+    <div class="login-container">
+        <h1>Admin Login</h1>
+
+        <?php if (isset($error)): ?>
+            <div class="error-message"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form method="POST" action="/katalog/login-action">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+    </div>
 </body>
 
 </html>

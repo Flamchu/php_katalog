@@ -1,68 +1,85 @@
 <?php
-require_once 'db.php';
-require_once 'models/Category.php';
-require_once 'models/Product.php';
-$categoryModel = new Category($pdo);
-$productModel = new Product($pdo);
-$categories = $categoryModel->getAllCategories();
+require __DIR__ . '/Router.php';
+require __DIR__ . '/db.php';
+require __DIR__ . '/models/Category.php';
+require __DIR__ . '/models/Product.php';
+require __DIR__ . '/controllers/ProductController.php';
+require __DIR__ . '/controllers/CategoryController.php';
+require __DIR__ . '/controllers/LoginController.php';
 
-$categoryId = $_GET['category'] ?? null;
-$sort = $_GET['sort'] ?? 'name';
+$router = new Router();
 
-if ($categoryId) {
-    $products = $productModel->getProductsByCategory($categoryId, $sort);
-} else {
-    $products = $productModel->getAllProducts($sort);
-}
+$categoryController = new CategoryController($pdo);
+$productController = new ProductController($pdo);
+$loginController = new LoginController($pdo);
+
+$router->addRoute('', function () use ($pdo) {
+    require __DIR__ . '/views/home.php';
+});
+
+$router->addRoute('/product/{id}', function ($params) use ($productController) {
+    $productId = $params['id'];
+    $productController->showProduct($productId);
+});
+
+$router->addRoute('/category/{id}', function ($params) use ($categoryController) {
+    $categoryId = $params['id'];
+    $categoryController->showCategory($categoryId);
+});
+
+$router->addRoute('/login', function () use ($loginController) {
+    $loginController->showLoginForm();
+});
+
+$router->addRoute('/login-action', function () use ($loginController) {
+    $loginController->handleLogin();
+});
+
+$router->addRoute('/logout', function () use ($loginController) {
+    $loginController->handleLogout();
+});
+
+$router->addRoute('/admin', function () use ($productController) {
+    $productController->showAdminDashboard();
+});
+
+$router->addRoute('/admin/manage/category', function () use ($categoryController) {
+    $categoryController->manageCategories();
+});
+
+$router->addRoute('/add-category-action', function () use ($categoryController) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $categoryController->addCategory($_POST['name'], $_POST['parent_id'] ?? null);
+    }
+});
+
+$router->addRoute('/delete-category/{id}', function ($params) use ($categoryController) {
+    $categoryController->deleteCategory($params['id']);
+});
+
+$router->addRoute('/admin/manage/product/add', function () use ($productController) {
+    $productController->showAddForm();
+});
+
+$router->addRoute('/admin/manage/product/edit/{id}', function ($params) use ($productController) {
+    $productController->editProduct($params['id'], $_POST);
+});
+
+$router->addRoute('/add-product-action', function () use ($productController) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $productController->addProduct();
+    }
+});
+
+$router->addRoute('/edit-product/{id}', function ($params) use ($productController) {
+    $productId = $params['id'];
+    $productController->editProduct($productId, $_POST);
+});
+
+$router->addRoute('/delete-product/{id}', function ($params) use ($productController) {
+    $productId = $params['id'];
+    $productController->deleteProduct($productId);
+});
+
+$router->dispatch();
 ?>
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Category Products</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-    <nav>
-        <ul>
-            <?php foreach ($categories as $category): ?>
-                <?php if (empty($category['parent_id'])): ?>
-                    <li><a href="views/category.php?category=<?= htmlspecialchars($category['id']) ?>">
-                            <?= htmlspecialchars($category['name']) ?>
-                        </a></li>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            <li><a href="views/login.php">Login</a></li>
-            <?php if (isset($_SESSION['admin'])): ?>
-                <li><a href="views/admin.php">Admin Panel</a></li>
-            <?php endif; ?>
-        </ul>
-    </nav>
-    <h2>Products</h2>
-    <form method="GET" action="index.php">
-        <input type="hidden" name="category" value="<?= $categoryId ?>">
-        <label class="sort-label" for="sort">Sort by:</label>
-        <select class="sort-list" name="sort" onchange="this.form.submit()">
-            <option value="name" <?= $sort == 'name' ? 'selected' : '' ?>>Name</option>
-            <option value="price" <?= $sort == 'price' ? 'selected' : '' ?>>Price</option>
-        </select>
-    </form>
-    <div class="product-list">
-        <?php if (empty($products)): ?>
-            <p>No products available.</p>
-        <?php else: ?>
-            <?php foreach ($products as $product): ?>
-                <div class="product-card">
-                    <h3><a href="controllers/ProductController.php?action=view&id=<?= $product['id'] ?>">
-                            <?= htmlspecialchars($product['name']) ?> </a>
-                    </h3>
-                    <p><?= htmlspecialchars($product['short_description']) ?></p>
-                    <p>Price: <?= number_format($product['price'], 2) ?> Kč</p>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
-</body>
-
-</html>
