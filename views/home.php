@@ -36,10 +36,12 @@ if ($categoryId) {
                             </a></li>
                     <?php endif; ?>
                 <?php endforeach; ?>
-                <li><a href="/katalog/login" class="nav-link">Login</a></li>
-                <?php if (isset($_SESSION['admin'])): ?>
-                    <li><a href="/katalog/admin" class="nav-link">Admin Panel</a></li>
-                <?php endif; ?>
+                <div class="nav-login">
+                    <li><a href="/katalog/login" class="nav-link">Login</a></li>
+                    <?php if (isset($_SESSION['admin'])): ?>
+                        <li><a href="/katalog/admin" class="nav-link">Admin Panel</a></li>
+                    <?php endif; ?>
+                </div>
             </ul>
         </div>
     </nav>

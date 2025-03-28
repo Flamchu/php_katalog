@@ -177,7 +177,10 @@ h3 {
 	width: 100%;
 }
 
-#login {
+.nav-login {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
 	position: absolute;
 	right: 30px;
 }
