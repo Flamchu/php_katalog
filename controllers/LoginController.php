@@ -34,31 +34,26 @@ class LoginController
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        // Basic validation
         if (empty($username) || empty($password)) {
             $this->showLoginForm("Username and password are required");
             return;
         }
 
-        // Throttle login attempts (basic protection against brute force)
         if ($this->isLoginThrottled($username)) {
             $this->showLoginForm("Too many login attempts. Please try again later");
             return;
         }
 
         if ($this->userModel->login($username, $password)) {
-            // Login successful
             $_SESSION['admin'] = true;
             $_SESSION['username'] = $username;
             $_SESSION['login_time'] = time();
 
-            // Clear any failed attempts
             $this->clearLoginAttempts($username);
 
             header('Location: /katalog/admin');
             exit;
         } else {
-            // Record failed attempt
             $this->recordFailedAttempt($username);
             $this->showLoginForm("Invalid username or password");
         }
@@ -66,10 +61,8 @@ class LoginController
 
     public function handleLogout()
     {
-        // Clear session data
         $_SESSION = [];
 
-        // Delete session cookie
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
